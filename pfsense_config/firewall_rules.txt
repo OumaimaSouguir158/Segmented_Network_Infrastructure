@@ -1,0 +1,26 @@
+# ============================================================
+# Règles de pare-feu pfSense — Infrastructure segmentée
+# Format simplifié (équivalent config XML pfSense, commenté)
+# ============================================================
+
+# --- Interface VLAN10 (Utilisateurs) ---
+pass  in  on VLAN10  proto tcp  from 192.168.10.0/24  to 192.168.30.0/24  port {80,443}   # Users -> DMZ web
+pass  in  on VLAN10  proto tcp  from 192.168.10.0/24  to any             port {80,443}   # Users -> Internet
+pass  in  on VLAN10  proto udp  from 192.168.10.0/24  to any             port 53         # DNS
+block in  on VLAN10  proto any  from 192.168.10.0/24  to 192.168.20.0/24                 # Bloque Users -> Serveurs (sauf apps déclarées ci-dessous)
+pass  in  on VLAN10  proto tcp  from 192.168.10.0/24  to 192.168.20.10   port 8443       # Exception : app interne RH (serveur dédié)
+
+# --- Interface VLAN20 (Serveurs internes) ---
+pass  in  on VLAN20  proto tcp  from 192.168.20.0/24  to 192.168.30.20   port 5432       # Serveurs -> DB en DMZ (si besoin)
+block in  on VLAN20  proto any  from 192.168.20.0/24  to any                             # Aucun accès sortant direct Internet depuis les serveurs
+pass  in  on VLAN20  proto tcp  from 10.8.0.0/24      to 192.168.20.0/24 port {22,443}   # VPN -> Serveurs (admin distante)
+block in  on VLAN20  proto any  from 10.8.0.0/24      to 192.168.30.0/24                 # [correctif tests] VPN ne doit PAS atteindre la DMZ
+
+# --- Interface VLAN30 (DMZ) ---
+pass  in  on VLAN30  proto tcp  from any              to 192.168.30.10   port {80,443}   # Internet -> Web DMZ
+pass  in  on VLAN30  proto tcp  from any              to 192.168.30.11   port 25         # Internet -> Mail DMZ
+block in  on VLAN30  proto any  from 192.168.30.0/24  to 192.168.20.0/24                 # Bloque DMZ -> Serveurs internes (compromission DMZ contenue)
+block in  on VLAN30  proto any  from 192.168.30.0/24  to 192.168.10.0/24                 # Bloque DMZ -> LAN Users
+
+# --- Règle implicite finale ---
+block in  on any      proto any  from any              to any                            # Deny all par défaut (pfSense default)

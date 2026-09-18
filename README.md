@@ -1,4 +1,4 @@
-# Projet 3 — Sécurisation d'une infrastructure réseau segmentée
+# Sécurisation d'une infrastructure réseau segmentée
 
 ## Objectif
 Concevoir une architecture réseau segmentée avec pare-feu et VPN pour

@@ -1,8 +1,5 @@
 # Projet 3 — Sécurisation d'une infrastructure réseau segmentée
 
-Niveau avancé 🔴 · ~5-6 semaines
-**Master visé :** Cyberdéfense et Sécurité de l'Information (CDSI) — UPHF
-
 ## Objectif
 Concevoir une architecture réseau segmentée avec pare-feu et VPN pour
 cloisonner différentes zones de confiance (utilisateurs, serveurs, DMZ).
